@@ -1,59 +1,70 @@
 extern crate rand;
 extern crate rand_distr;
 
-use super::sfml::system::{Vector2f, Vector2};
+use super::sfml::system::{Vector2f};
 use super::sfml::graphics::{CircleShape, Transformable, Shape, Color, RenderWindow, RenderTarget};
-use super::game_systems::{Move, StatusUpdate, ImageUpdate};
 use super::util::{vector_length, vector_normalize, vector_normalize_with_len};
 use crate::settings::{INFECTION_RADIUS, INFECTION_CHANCE, POPULATION_NUM, ENTITY_RADIUS, WINDOW_WIDTH,
                       WINDOW_HEIGHT, ENTITY_MAX_SPEED};
 use self::rand::Rng;
-use super::sfml::window::sensor::Type::Count;
+use std::ops::{Add, Mul};
 
 
 pub struct Movement {
-    pub id: usize,
     pub position: Vector2f,
     pub velocity: Vector2f,
 }
 
-impl Movement {
-    pub fn move_(&mut self, dt: f32, image_list: &mut Vec<Image>, neighbor_l: &Vec<NeighborList>, status_l: &Vec<Status>) {
-        let dist_kept = status_l[self.id].is_dist_kept;
-        self.direction_update(neighbor_l, dist_kept);
-        if dist_kept {
-            self.position += self.velocity * Vector2f::new(dt * 60.0, dt * 60.0);
-        } else {
-            self.position += self.velocity * Vector2f::new(dt * 60.0 * ENTITY_MAX_SPEED,
-                                                           dt * 60.0 * ENTITY_MAX_SPEED);
-        }
-        self.check_bound();
-        image_list[self.id].update_pos(self.position);
+#[derive(Clone)]
+pub struct Position {
+    pub x: f32,
+    pub y: f32,
+}
+
+impl Position {
+
+    pub fn new(x: f32, y: f32) -> Position {
+        Position { x, y }
     }
 
-    fn direction_update(&mut self, neighbor_l: &Vec<NeighborList>, dist_kept: bool) {
-        if vector_length(&neighbor_l[self.id].new_dir) < 0.5 || !dist_kept {
-            let mut rand_gen = rand::thread_rng();
-            let normal_ = rand_distr::Normal::new(0.0, 1.0).unwrap();
-            self.velocity = vector_normalize(&Vector2f::new(rand_gen.sample(&normal_),
-                                                            rand_gen.sample(&normal_)));
-        } else {
-            self.velocity = -neighbor_l[self.id].new_dir;
-        }
+    pub fn to_vector2f(&self) -> Vector2f {
+        Vector2f::new(self.x, self.y)
+    }
+}
+
+#[derive(Clone)]
+pub struct Velocity {
+    pub x: f32,
+    pub y: f32,
+}
+
+impl Velocity {
+
+    pub fn new(x: f32, y: f32) -> Velocity {
+        Velocity { x, y }
     }
 
-    fn check_bound(&mut self) {
-        if self.position.x < 0.0 {
-            self.position = Vector2f::new(WINDOW_WIDTH as f32 + self.position.x, self.position.y);
+    pub fn to_vector2f(&self) -> Vector2f {
+        Vector2f::new(self.x, self.y)
+    }
+}
+
+impl Add<Velocity> for Position {
+    type Output = Position;
+    fn add(self, rhs: Velocity) -> Self::Output {
+        Position {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
         }
-        if self.position.x > WINDOW_WIDTH as f32 {
-            self.position = Vector2f::new(self.position.x - WINDOW_WIDTH as f32, self.position.y);
-        }
-        if self.position.y < 0.0 {
-            self.position = Vector2f::new(self.position.x, WINDOW_HEIGHT as f32 + self.position.y);
-        }
-        if self.position.y > WINDOW_HEIGHT as f32 {
-            self.position = Vector2f::new(self.position.x, self.position.y - WINDOW_HEIGHT as f32);
+    }
+}
+
+impl Mul<f32> for Velocity {
+    type Output = Velocity;
+    fn mul(self, rhs: f32) -> Self::Output {
+        Velocity {
+            x: self.x * rhs,
+            y: self.y * rhs,
         }
     }
 }
@@ -159,12 +170,13 @@ impl Image {
         return s.is_infected;
     }
 
-    pub fn draw(&mut self, win: &mut RenderWindow, status: &Vec<Status>) {
-        let indicator = self.color_update(status);
+    // pub fn draw(&mut self, win: &mut RenderWindow, status: &Vec<Status>) {
+    pub fn draw(&mut self, win: &mut RenderWindow) {
+        // let indicator = self.color_update(status);
         win.draw(&self.image);
-        if indicator {
-            win.draw(&self.radius_image);
-        }
+        // if indicator {
+        //     win.draw(&self.radius_image);
+        // }
     }
 
     fn update_pos(&mut self, pos: Vector2f) {
