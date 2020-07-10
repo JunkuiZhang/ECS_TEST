@@ -1,6 +1,6 @@
 [package]
 name = "covid_19_ecs"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["JunkuiZhang <364772080@qq.com>"]
 edition = "2018"
 
