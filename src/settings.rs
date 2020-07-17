@@ -5,9 +5,9 @@ pub static TITLE: &str = "Covid-19 Simulation";
 
 // Population settings
 pub static POPULATION_NUM: usize = 1000;
-pub const POP_DIST_KEPT_PORTION: f32 = 0.7;
+pub const POP_DIST_KEPT_WALK_SPEED_FACTOR: f32 = 0.4;
 pub const ENTITY_RADIUS: f32 = 3.0;
-pub const ENTITY_MAX_SPEED: f32 = 5.0;
+pub const ENTITY_MAX_SPEED: f32 = 2.0;
 
 // Virus settings
 pub static DIST_KEPT_INIT_PORTION: f32 = 0.5;
