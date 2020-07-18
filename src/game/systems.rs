@@ -61,7 +61,7 @@ impl<'a> System<'a> for EntityNeighborListUpdate {
     type SystemData = (ReadStorage<'a, Status>, ReadStorage<'a, Position>, ReadStorage<'a, Direction>, WriteStorage<'a, NeighborList>);
 
     fn run(&mut self, (status, position, direction, mut neighbor_list): Self::SystemData) {
-        for (status1, position1, direction1, nl) in (&status, &position, &direction, &mut neighbor_list).join() {
+        for (status1, position1, nl) in (&status, &position, &mut neighbor_list).join() {
             if !status1.is_dist_kept { continue; }
 
             let mut neighbor_dir = Direction { x: 0.0, y: 0.0};
@@ -159,38 +159,34 @@ pub mod renderer {
     ) {
         window.clear(Color::WHITE);
 
+        let mut entity_circle = CircleShape::new(ENTITY_RADIUS, 30);
+        let mut radius_circle = CircleShape::new(INFECTION_RADIUS, 30);
+
+        entity_circle.set_origin(Vector2f::new(ENTITY_RADIUS, ENTITY_RADIUS));
+        radius_circle.set_origin(Vector2f::new(INFECTION_RADIUS, INFECTION_RADIUS));
+
+        entity_circle.set_fill_color(Color::BLACK);
+        radius_circle.set_fill_color(Color::TRANSPARENT);
+        radius_circle.set_outline_thickness(2.0);
+        radius_circle.set_outline_color(Color::RED);
+
         for (pos, status) in (&pos, &status).join() {
-            let mut ent_color = Color::BLACK;
-            let mut radius_color = Color::RED;
             if status.is_infected {
-                ent_color = Color::RED;
+                entity_circle.set_fill_color(Color::RED);
+                radius_circle.set_outline_color(Color::RED);
             }
             if status.is_dist_kept {
-                ent_color = Color::BLUE;
-                radius_color = Color::BLUE;
+                entity_circle.set_fill_color(Color::BLUE);
+                radius_circle.set_outline_color(Color::BLUE);
             }
             if status.is_traveling {
-                ent_color = Color::GREEN;
-                radius_color = Color::GREEN;
+                entity_circle.set_fill_color(Color::GREEN);
             }
-
-            let mut ent_image = CircleShape::new(ENTITY_RADIUS, 30);
-            let mut radius_image = CircleShape::new(INFECTION_RADIUS, 30);
-
-            ent_image.set_origin(Vector2f::new(ENTITY_RADIUS, ENTITY_RADIUS));
-            radius_image.set_origin(Vector2f::new(INFECTION_RADIUS, INFECTION_RADIUS));
-
-            ent_image.set_position(Vector2f::new(pos.x, pos.y));
-            radius_image.set_position(Vector2f::new(pos.x, pos.y));
-
-            ent_image.set_fill_color(ent_color);
-            radius_image.set_fill_color(Color::TRANSPARENT);
-            radius_image.set_outline_thickness(1.5);
-            radius_image.set_outline_color(radius_color);
-
-            window.draw(&ent_image);
+            entity_circle.set_position(Vector2f::new(pos.x, pos.y));
+            window.draw(&entity_circle);
             if status.is_infected {
-                window.draw(&radius_image);
+                radius_circle.set_position(Vector2f::new(pos.x, pos.y));
+                window.draw(&radius_circle);
             }
         }
 

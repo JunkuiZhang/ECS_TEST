@@ -6,8 +6,8 @@ use specs::prelude::*;
 use specs::{World, WorldExt, Builder, Dispatcher, DispatcherBuilder};
 use components::*;
 use systems::*;
-use sfml::system::{Clock};
-use sfml::graphics::{RenderWindow, RenderTarget, Color};
+use sfml::system::{Clock, Vector2f};
+use sfml::graphics::{RenderWindow, RenderTarget, Color, CircleShape, Transformable};
 use sfml::window::{VideoMode, Style, ContextSettings, Event, Key};
 use std::option::Option::Some;
 use rand::Rng;
@@ -54,6 +54,10 @@ impl<'a, 'b> Game<'_, '_> {
             dispatcher,
             clock,
         }
+    }
+
+    fn images_init(&mut self) {
+
     }
 
     fn init(&mut self) {

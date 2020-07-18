@@ -1,5 +1,8 @@
 use specs::{Component, VecStorage};
 use std::ops::{Mul, Add, Div, AddAssign};
+use sfml::graphics::{CircleShape, Transformable, Shape, Color};
+use crate::settings::{ENTITY_RADIUS, INFECTION_RADIUS};
+use sfml::system::Vector2f;
 
 
 #[derive(Clone, Debug, Default)]
@@ -78,6 +81,66 @@ impl Component for Status {
     type Storage = VecStorage<Self>;
 }
 
+
+/*
+#[derive(Clone, Debug)]
+pub struct EntityImage<'a> {
+    pub entity_circle: Box<CircleShape<'a>>,
+    pub radius_circle: Box<CircleShape<'a>>,
+}
+
+impl Component for EntityImage<'_> {
+    type Storage = VecStorage<Self>;
+}
+
+impl<'a> Default for EntityImage<'_> {
+    fn default() -> EntityImage<'a> {
+        let mut ent_img = CircleShape::new(ENTITY_RADIUS, 30);
+        let mut rad_img = CircleShape::new(INFECTION_RADIUS, 30);
+        ent_img.set_origin(Vector2f::new(ENTITY_RADIUS, ENTITY_RADIUS));
+        rad_img.set_origin(Vector2f::new(INFECTION_RADIUS, INFECTION_RADIUS));
+        ent_img.set_fill_color(Color::BLACK);
+        rad_img.set_fill_color(Color::TRANSPARENT);
+        rad_img.set_outline_thickness(2.0);
+        rad_img.set_outline_color(Color::RED);
+
+        EntityImage {
+            entity_circle: Box::new(ent_img),
+            radius_circle: Box::new(rad_img),
+        }
+    }
+}
+
+impl<'a> EntityImage<'_> {
+    pub fn generate(is_infected: bool, is_dist_kept: bool, x: f32, y: f32) -> EntityImage<'a> {
+        let mut ent_img = CircleShape::new(ENTITY_RADIUS, 30);
+        let mut rad_img = CircleShape::new(INFECTION_RADIUS, 30);
+        ent_img.set_origin(Vector2f::new(ENTITY_RADIUS, ENTITY_RADIUS));
+        rad_img.set_origin(Vector2f::new(INFECTION_RADIUS, INFECTION_RADIUS));
+        ent_img.set_fill_color(Color::BLACK);
+        rad_img.set_fill_color(Color::TRANSPARENT);
+        rad_img.set_outline_thickness(2.0);
+        rad_img.set_outline_color(Color::RED);
+
+        if is_infected {
+            ent_img.set_fill_color(Color::RED);
+            rad_img.set_outline_color(Color::RED);
+        }
+        if is_dist_kept {
+            ent_img.set_fill_color(Color::BLUE);
+            rad_img.set_outline_color(Color::BLUE);
+        }
+
+        ent_img.set_position(Vector2f::new(x, y));
+        rad_img.set_position(Vector2f::new(x, y));
+
+        EntityImage {
+            entity_circle: Box::new(ent_img),
+            radius_circle: Box::new(rad_img),
+        }
+    }
+}
+*/
 
 #[derive(Clone, Default, Debug)]
 pub struct NeighborList {
